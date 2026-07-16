@@ -59,6 +59,15 @@ describe('useStorage', () => {
         expect(token.value).toBe('b'); // unrelated key ignored
     });
 
+    it('resets to defaults on cross-tab key removal without re-seeding', () => {
+        const prefs = useStorage('gone', { theme: 'light' });
+        prefs.theme = 'dark';
+        localStorage.removeItem('gone'); // simulate the other tab's removal
+        window.dispatchEvent(new StorageEvent('storage', { key: 'gone', newValue: null }));
+        expect(prefs.theme).toBe('light');
+        expect(localStorage.getItem('gone')).toBe(null); // not re-seeded
+    });
+
     it('routes storage errors to onError', () => {
         const onError = vi.fn();
         const broken = {

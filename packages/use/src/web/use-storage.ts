@@ -105,24 +105,34 @@ export function useStorage(
     // Guards the echo write while applying an external (storage-sourced) value.
     let applying = false;
 
+    const applyValue = (value: unknown) => {
+        applying = true;
+        try {
+            if (isObject) data.$set(value as object);
+            else data.value = value;
+        } finally {
+            applying = false;
+        }
+    };
+
     const read = (raw: string | null | undefined) => {
         if (!storage) return;
         try {
             const value = raw === undefined ? storage.getItem(key) : raw;
             if (value === null) {
-                if (writeDefaults && defaults !== null && defaults !== undefined) {
-                    storage.setItem(key, serializer.write(defaults));
+                if (raw === undefined) {
+                    // Initial read, key absent: keep defaults, optionally seed storage.
+                    if (writeDefaults && defaults !== null && defaults !== undefined) {
+                        storage.setItem(key, serializer.write(defaults));
+                    }
+                } else {
+                    // Cross-tab removal: reset to defaults WITHOUT re-seeding the
+                    // key the other tab deliberately removed.
+                    applyValue(isObject ? serializer.read(serializer.write(defaults)) : defaults);
                 }
                 return;
             }
-            applying = true;
-            try {
-                const parsed = serializer.read(value);
-                if (isObject) data.$set(parsed as object);
-                else data.value = parsed;
-            } finally {
-                applying = false;
-            }
+            applyValue(serializer.read(value));
         } catch (error) {
             onError(error);
         }
