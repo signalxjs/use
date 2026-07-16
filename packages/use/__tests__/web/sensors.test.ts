@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { effectScope, toSignals } from '@sigx/reactivity';
+import { effectScope, signal, toSignals } from '@sigx/reactivity';
 import {
     breakpointsTailwind,
     useBreakpoints,
