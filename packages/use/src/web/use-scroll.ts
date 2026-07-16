@@ -1,4 +1,4 @@
-import { batch, computed, signal, watch } from '@sigx/reactivity';
+import { batch, computed, signal, untrack, watch } from '@sigx/reactivity';
 import type { WritableComputed } from '@sigx/reactivity';
 import { createThrottle } from '../shared/filters.js';
 import { tryOnScopeDispose } from '../shared/scope.js';
@@ -141,10 +141,12 @@ export function useScroll(
     if (target !== undefined || window) {
         // Measure whenever a (possibly reactive) target produces an element —
         // covers template refs that start null and fill in after mount.
+        // untrack: measure reads the state signals it also writes; tracked,
+        // they'd become watcher deps and every scroll would double-measure.
         watch(
             () => resolveTarget(),
             (t) => {
-                if (t) measure();
+                if (t) untrack(() => measure());
             },
             { immediate: true }
         );
