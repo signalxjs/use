@@ -11,6 +11,10 @@ const arg = process.argv[2] || 'patch';
 const isExactVersion = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(arg);
 const bumpType = isExactVersion ? null : arg;
 const exactVersion = isExactVersion ? arg : null;
+if (bumpType && !['major', 'minor', 'patch'].includes(bumpType)) {
+    console.error(`❌ Unknown bump type or invalid version: "${arg}" (expected major|minor|patch or x.y.z)`);
+    process.exit(1);
+}
 
 function bumpVersion(version, type) {
     // Bump from the release base; a prerelease suffix (1.0.0-beta.1) is dropped.

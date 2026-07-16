@@ -43,6 +43,10 @@ const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const tagIndex = args.indexOf('--tag');
 const tag = tagIndex !== -1 ? args[tagIndex + 1] : null;
+if (tagIndex !== -1 && (!tag || tag.startsWith('--'))) {
+    console.error('❌ --tag requires a value (e.g. --tag beta)');
+    process.exit(1);
+}
 const provenance = args.includes('--provenance');
 
 // NPM token support for CI/CD (avoids 2FA prompts). The token goes into a
