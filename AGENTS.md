@@ -141,9 +141,15 @@ pnpm verify:pack # pack + install + import smoke of both entries
   `@sigx/runtime-core`, keeping the component-lifecycle dependency in one
   seam). Relative imports carry explicit `.js` extensions — the tsgo build
   emits them verbatim and Node ESM requires them.
-- Cleanup convention: register teardown via `tryOnScopeDispose` (backed by
-  reactivity's `onScopeDispose`) AND return an explicit `stop()`/`Pausable`
-  handle for standalone (no-scope) use.
+- Cleanup convention: ALL teardown registers via `tryOnScopeDispose` (backed
+  by reactivity's `onScopeDispose`), so composables dispose with the owning
+  component or `effectScope`. Composables whose return is already a control
+  bag (timers, observers, `useScroll`) additionally expose an explicit
+  `stop()`/`Pausable` handle. Bare-signal sensors (`useMouse`,
+  `useMediaQuery`, `useWindowSize`, …) are scope-managed only — standalone
+  (no-component) users wrap them in `effectScope()` and call `scope.stop()`,
+  which is the idiomatic sigx pattern; don't bolt `stop` onto their reactive
+  return values.
 
 Path aliases: `tsconfig.json` and `vitest.config.ts` map `@sigx/use` and
 `@sigx/use/web` to `packages/use/src`, so tests and typecheck run against
