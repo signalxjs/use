@@ -150,8 +150,14 @@ export function useScroll(
 
     const scrollTo = (left?: number, top?: number) => {
         const t = resolveTarget();
-        if (!t || typeof (t as Element).scrollTo !== 'function') return;
-        (t as Element).scrollTo({ left, top, behavior });
+        if (!t) return;
+        // Document has no scrollTo — delegate to its window (or root element).
+        const surface =
+            'documentElement' in t && !('scrollX' in t)
+                ? (t.defaultView ?? t.documentElement)
+                : (t as Element | Window);
+        if (typeof (surface as Element).scrollTo !== 'function') return;
+        (surface as Element).scrollTo({ left, top, behavior });
     };
 
     const x = computed({

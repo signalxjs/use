@@ -18,7 +18,7 @@
     "typecheck:core": "tsgo --noEmit -p tsconfig.core.json",
     "lint": "oxlint packages/use/src",
     "lint:fix": "oxlint --fix packages/use/src",
-    "clean": "rm -rf packages/*/dist packages/*/node_modules node_modules pnpm-lock.yaml",
+    "clean": "node scripts/clean.mjs",
     "publish:dry": "node scripts/publish.js --dry-run",
     "publish:all": "node scripts/publish.js",
     "publish:beta": "node scripts/publish.js --tag beta",

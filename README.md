@@ -67,9 +67,9 @@ const Demo = component(() => {
 npm install @sigx/use
 ```
 
-> `@sigx/use` declares `@sigx/reactivity` (and optionally `@sigx/runtime-core`)
-> as peer dependencies (`>=0.11.0 <0.12.0`) so your app holds a single copy of
-> the reactivity engine. Package managers that auto-install peers (npm 7+, pnpm
+> `@sigx/use` declares `@sigx/reactivity` and `@sigx/runtime-core` as peer
+> dependencies (`>=0.11.0 <0.12.0`) so your app holds a single copy of the
+> reactivity engine. Package managers that auto-install peers (npm 7+, pnpm
 > with `auto-install-peers`) need nothing more; otherwise install the peers
 > explicitly.
 

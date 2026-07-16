@@ -4,9 +4,9 @@ import { tryOnScopeDispose } from '../shared/scope.js';
 import { toValue } from '../shared/to-value.js';
 import type { MaybeSignal } from '../shared/types.js';
 import { defaultDocument, defaultNavigator } from './configurable.js';
-import type { ConfigurableNavigator } from './configurable.js';
+import type { ConfigurableDocument, ConfigurableNavigator } from './configurable.js';
 
-export interface UseClipboardOptions extends ConfigurableNavigator {
+export interface UseClipboardOptions extends ConfigurableNavigator, ConfigurableDocument {
     /** Default payload for `copy()` when called without an argument. */
     source?: MaybeSignal<string>;
     /** How long (ms) `copied` stays true after a copy. Default 1500. */
@@ -40,7 +40,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     });
 
     const legacyCopy = (value: string) => {
-        const document = defaultDocument;
+        const document = options.document ?? defaultDocument;
         if (!document) return false;
         const textarea = document.createElement('textarea');
         textarea.value = value;

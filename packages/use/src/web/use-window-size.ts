@@ -46,7 +46,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): ReactiveView<
     useEventListener(window, 'resize', update, { passive: true });
     if (listenOrientation) {
         const portrait = useMediaQuery('(orientation: portrait)', options);
-        watch(portrait, () => update());
+        watch(() => portrait.value, () => update());
     }
     return size;
 }

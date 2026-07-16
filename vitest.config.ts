@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config';
-import { resolve } from 'path';
+import { fileURLToPath } from 'node:url';
+
+const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 
 export default defineConfig({
     test: {
@@ -17,8 +19,8 @@ export default defineConfig({
         alias: {
             // Subpath alias must precede the bare one, or '@sigx/use' would
             // swallow '@sigx/use/web' imports.
-            '@sigx/use/web': resolve(__dirname, 'packages/use/src/web/index.ts'),
-            '@sigx/use': resolve(__dirname, 'packages/use/src/index.ts')
+            '@sigx/use/web': here('packages/use/src/web/index.ts'),
+            '@sigx/use': here('packages/use/src/index.ts')
         }
     }
 });
