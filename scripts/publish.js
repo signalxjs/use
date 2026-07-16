@@ -190,7 +190,9 @@ async function main() {
     // a job has `permissions: id-token: write`.
     const isTrustedPublishing = !NPM_TOKEN && !!process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
 
-    if (isTrustedPublishing) {
+    if (dryRun) {
+        console.log('🧪 Dry run — skipping npm auth precheck\n');
+    } else if (isTrustedPublishing) {
         console.log('🔐 Trusted publishing (OIDC) — skipping npm whoami precheck\n');
     } else {
         try {
