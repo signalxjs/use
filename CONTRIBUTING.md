@@ -1,4 +1,4 @@
-# Contributing to SignalX <REPO>
+# Contributing to SignalX use
 
 Thanks for your interest! This repo is part of the
 [`signalxjs`](https://github.com/signalxjs) family. It follows the **sigx
@@ -17,8 +17,8 @@ We use the standard `main` / `branches` worktree layout. Clone the primary
 checkout into a `main` folder:
 
 ```bash
-git clone https://github.com/signalxjs/<REPO>.git <REPO>/main
-cd <REPO>/main
+git clone https://github.com/signalxjs/use.git use/main
+cd use/main
 pnpm install
 pnpm build
 ```
@@ -73,8 +73,8 @@ pnpm build
 
 ## Reporting bugs and requesting features
 
-- **Bug?** Open an issue with the [bug report template](https://github.com/signalxjs/<REPO>/issues/new?template=bug_report.yml). A minimal reproduction helps a lot.
-- **Feature idea?** Use the [feature request template](https://github.com/signalxjs/<REPO>/issues/new?template=feature_request.yml).
+- **Bug?** Open an issue with the [bug report template](https://github.com/signalxjs/use/issues/new?template=bug_report.yml). A minimal reproduction helps a lot.
+- **Feature idea?** Use the [feature request template](https://github.com/signalxjs/use/issues/new?template=feature_request.yml).
 
 ## Code of conduct
 
