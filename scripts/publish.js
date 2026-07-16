@@ -26,7 +26,7 @@ import { execSync } from 'child_process';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { homedir } from 'os';
+import { tmpdir } from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
@@ -45,50 +45,30 @@ const tagIndex = args.indexOf('--tag');
 const tag = tagIndex !== -1 ? args[tagIndex + 1] : null;
 const provenance = args.includes('--provenance');
 
-// NPM token support for CI/CD (avoids 2FA prompts)
+// NPM token support for CI/CD (avoids 2FA prompts). The token goes into a
+// TEMPORARY npmrc passed via NPM_CONFIG_USERCONFIG — never into ~/.npmrc —
+// so a hard crash can at worst leave a stray file in the OS tmpdir, and the
+// user's real config is never mutated.
 const NPM_TOKEN = process.env.NPM_TOKEN;
 let npmrcCreated = false;
-let originalNpmrc = null;
-const npmrcPath = join(homedir(), '.npmrc');
+const npmrcPath = join(tmpdir(), `sigx-publish-npmrc-${process.pid}`);
+
+/** Env for npm/pnpm child processes; routes auth through the temp npmrc. */
+function npmEnv() {
+    return npmrcCreated ? { ...process.env, NPM_CONFIG_USERCONFIG: npmrcPath } : process.env;
+}
 
 function setupNpmToken() {
     if (!NPM_TOKEN) return;
 
-    console.log('🔑 Using NPM_TOKEN for authentication\n');
-
-    // Backup existing .npmrc if present
-    if (existsSync(npmrcPath)) {
-        originalNpmrc = readFileSync(npmrcPath, 'utf-8');
-    }
-
-    // Write/update token to .npmrc (always update if NPM_TOKEN is set)
-    const tokenLine = `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`;
-    if (originalNpmrc) {
-        // Replace existing token line or append
-        if (originalNpmrc.includes('//registry.npmjs.org/:_authToken=')) {
-            const updated = originalNpmrc.replace(
-                /\/\/registry\.npmjs\.org\/:_authToken=.*/,
-                tokenLine
-            );
-            writeFileSync(npmrcPath, updated);
-        } else {
-            writeFileSync(npmrcPath, originalNpmrc + '\n' + tokenLine);
-        }
-        npmrcCreated = true;
-    } else {
-        writeFileSync(npmrcPath, tokenLine);
-        npmrcCreated = true;
-    }
+    console.log('🔑 Using NPM_TOKEN for authentication (temporary npmrc)\n');
+    writeFileSync(npmrcPath, `//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n`, { mode: 0o600 });
+    npmrcCreated = true;
 }
 
 function cleanupNpmToken() {
     if (!npmrcCreated) return;
-
-    if (originalNpmrc) {
-        writeFileSync(npmrcPath, originalNpmrc);
-    } else {
-        unlinkSync(npmrcPath);
-    }
+    unlinkSync(npmrcPath);
     npmrcCreated = false;
 }
 
@@ -101,7 +81,7 @@ function registerCleanupHandlers() {
         try {
             cleanupNpmToken();
         } catch (err) {
-            console.error('⚠️  Failed to clean up ~/.npmrc on exit:', err);
+            console.error('⚠️  Failed to clean up temporary npmrc on exit:', err);
         }
         // Mirror the conventional shell exit code (128 + signal number) for SIGINT/SIGTERM.
         const code = signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 1;
@@ -135,7 +115,7 @@ function getPackageInfo(packagePath) {
 
 function isAlreadyPublished(name, version) {
     try {
-        const result = execSync(`npm view ${name}@${version} version`, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+        const result = execSync(`npm view ${name}@${version} version`, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'], env: npmEnv() }).trim();
         return result === version;
     } catch {
         return false;
@@ -161,7 +141,8 @@ function publishPackage(pkg) {
     try {
         execSync(publishCmd, {
             cwd: fullPath,
-            stdio: 'inherit'
+            stdio: 'inherit',
+            env: npmEnv()
         });
         console.log(`   ✅ ${dryRun ? 'Ready' : 'Published'}: ${pkg.name}@${pkg.version}`);
         return 'published';
@@ -204,7 +185,7 @@ async function main() {
         console.log('🔐 Trusted publishing (OIDC) — skipping npm whoami precheck\n');
     } else {
         try {
-            const whoami = execSync('npm whoami', { encoding: 'utf-8' }).trim();
+            const whoami = execSync('npm whoami', { encoding: 'utf-8', env: npmEnv() }).trim();
             console.log(`👤 Logged in as: ${whoami}\n`);
         } catch {
             console.error('❌ Not logged in to npm. Run: npm login');

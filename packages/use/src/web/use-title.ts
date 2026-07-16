@@ -57,8 +57,13 @@ export function useTitle(
 
     if (observe && document) {
         const titleElement = document.head.querySelector('title');
-        if (titleElement && typeof MutationObserver !== 'undefined') {
-            const observer = new MutationObserver(() => {
+        // Resolve the observer from the configured document's realm, not the
+        // ambient global — the configurable-globals seam applies here too.
+        const ObserverCtor =
+            document.defaultView?.MutationObserver ??
+            (globalThis as { MutationObserver?: typeof MutationObserver }).MutationObserver;
+        if (titleElement && ObserverCtor) {
+            const observer = new ObserverCtor(() => {
                 if (document.title !== title.value) title.value = document.title;
             });
             observer.observe(titleElement, { childList: true });

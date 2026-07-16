@@ -57,6 +57,19 @@ describe('useScroll', () => {
         expect(y.value).toBe(150); // scroll event fed back
     });
 
+    it('stop() detaches the listener and clears timers', () => {
+        const el = scrollableElement();
+        const { y, stop } = useScroll(el, { idle: 100 });
+        el.scrollTop = 50;
+        el.dispatchEvent(new Event('scroll'));
+        expect(y.value).toBe(50);
+
+        stop();
+        el.scrollTop = 120;
+        el.dispatchEvent(new Event('scroll'));
+        expect(y.value).toBe(50); // detached
+    });
+
     it('invokes onScroll and onStop', () => {
         const el = scrollableElement();
         const onScroll = vi.fn();

@@ -1,9 +1,9 @@
 import { batch, computed, signal, untrack, watch } from '@sigx/reactivity';
-import type { WritableComputed } from '@sigx/reactivity';
+import type { WatchHandle, WritableComputed } from '@sigx/reactivity';
 import { createThrottle } from '../shared/filters.js';
 import { tryOnScopeDispose } from '../shared/scope.js';
-import type { MaybeSignal, ReactiveView, ReadSignal } from '../shared/types.js';
-import { defaultWindow } from './configurable.js';
+import type { MaybeSignal, ReactiveView, ReadSignal, Stop } from '../shared/types.js';
+import { defaultWindow, noop } from './configurable.js';
 import type { ConfigurableWindow } from './configurable.js';
 import { unrefElement } from './unref-element.js';
 import { useEventListener } from './use-event-listener.js';
@@ -32,6 +32,8 @@ export interface UseScrollReturn {
     arrivedState: ReactiveView<{ left: boolean; right: boolean; top: boolean; bottom: boolean }>;
     /** Which directions the latest scroll moved in. */
     directions: ReactiveView<{ left: boolean; right: boolean; top: boolean; bottom: boolean }>;
+    /** Detach the listener/watcher and clear timers (for standalone, no-scope use). */
+    stop: Stop;
 }
 
 /**
@@ -138,25 +140,34 @@ export function useScroll(
     const onScroll = (event: Event) => (handler ? handler.call(event) : measure(event));
     if (handler) tryOnScopeDispose(handler.cancel);
 
+    let measureWatch: WatchHandle | null = null;
+    let stopListener: Stop = noop;
     if (target !== undefined || window) {
         // Measure whenever a (possibly reactive) target produces an element —
         // covers template refs that start null and fill in after mount.
         // untrack: measure reads the state signals it also writes; tracked,
         // they'd become watcher deps and every scroll would double-measure.
-        watch(
+        measureWatch = watch(
             () => resolveTarget(),
             (t) => {
                 if (t) untrack(() => measure());
             },
             { immediate: true }
         );
-        useEventListener(
+        stopListener = useEventListener(
             target === undefined ? (window as EventTarget) : (target as MaybeSignal<EventTarget | null | undefined>),
             'scroll',
             onScroll,
             { passive: true }
         );
     }
+
+    const stop: Stop = () => {
+        measureWatch?.stop();
+        stopListener();
+        handler?.cancel();
+        clearIdle();
+    };
 
     const scrollTo = (left?: number, top?: number) => {
         const t = resolveTarget();
@@ -179,5 +190,5 @@ export function useScroll(
         set: (value: number) => scrollTo(undefined, value)
     });
 
-    return { x, y, isScrolling, arrivedState, directions };
+    return { x, y, isScrolling, arrivedState, directions, stop };
 }
