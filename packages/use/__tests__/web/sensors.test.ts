@@ -52,11 +52,20 @@ describe('useMediaQuery', () => {
 
     it('re-subscribes when a reactive query changes', () => {
         const { window, set, lists } = fakeMatchMedia();
-        const query = { value: '(min-width: 100px)' };
-        const match = useMediaQuery(() => query.value, { window });
+        const query = signal('(min-width: 100px)');
+        const match = useMediaQuery(query, { window });
         set('(min-width: 100px)', true);
         expect(match.value).toBe(true);
-        expect(lists.size).toBe(1);
+
+        query.value = '(min-width: 200px)';
+        expect(lists.size).toBe(2);
+        expect(lists.get('(min-width: 100px)')!.listeners.size).toBe(0); // old listener removed
+        expect(lists.get('(min-width: 200px)')!.listeners.size).toBe(1);
+        expect(match.value).toBe(false); // new query not matching yet
+        set('(min-width: 200px)', true);
+        expect(match.value).toBe(true);
+        set('(min-width: 100px)', false); // stale list can't influence the signal
+        expect(match.value).toBe(true);
     });
 
     it('unsubscribes on scope stop', () => {
