@@ -177,7 +177,7 @@ export function useScroll(
             'documentElement' in t && !('scrollX' in t)
                 ? (t.defaultView ?? t.documentElement)
                 : (t as Element | Window);
-        if (typeof (surface as Element).scrollTo !== 'function') return;
+        if (!surface || typeof (surface as Element).scrollTo !== 'function') return;
         (surface as Element).scrollTo({ left, top, behavior });
     };
 

@@ -73,6 +73,11 @@ export function useIntersectionObserver(
         isActive,
         pause: () => (isActive.value = false),
         resume: () => (isActive.value = true),
-        stop: () => handle.stop()
+        // Terminal: the watcher is gone, so resume() can't revive it —
+        // isActive is forced false to keep the Pausable contract truthful.
+        stop: () => {
+            isActive.value = false;
+            handle.stop();
+        }
     };
 }
