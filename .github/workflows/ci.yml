@@ -40,6 +40,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Typecheck root entry (DOM-free)
+        run: pnpm typecheck:core
+
       - name: Build
         run: pnpm build
 

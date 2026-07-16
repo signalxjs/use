@@ -1,4 +1,4 @@
-# SignalX <REPO> — shared agent guide
+# SignalX use — shared agent guide
 
 > ⚠️ **BRANCH FIRST — never work on `main`.** Before touching ANY file, create a
 > worktree (`pnpm wt new <N-short-slug>`) and do everything from
@@ -21,17 +21,19 @@ This is the sigx standard agent setup. The same pattern (this file +
 it originates in [`signalxjs/repo-template`](https://github.com/signalxjs/repo-template).
 See "Adopting this setup in another sigx repo" at the bottom.
 
-<!-- TODO(sigx-standard): replace this paragraph with what THIS repo is. Example: -->
-SignalX (sigx) <REPO> is a pnpm monorepo (ESM, `"type": "module"`) of the
-packages under `packages/`. Tech stack: TypeScript (strict), Vite, Vitest,
-oxlint. Published to npm under the `@sigx` scope.
-<!-- Single-package repo? Say so here ("…is a single npm package, not a workspace")
-     and drop the workspace/`--filter` bits from "Build, Test, Lint" and "Packages". -->
+SignalX (sigx) use is `@sigx/use` — a curated collection of tree-shakable
+composable functions built on `@sigx/reactivity` signals (the sigx equivalent
+of VueUse). A pnpm monorepo (ESM, `"type": "module"`) with a single leaf
+package under `packages/use`, exposing two entries: `@sigx/use` (root —
+platform-agnostic, statically DOM-free: works on web, Lynx, SSR, terminal) and
+`@sigx/use/web` (SSR-safe DOM composables). Tech stack: TypeScript (strict,
+built with tsgo — per-file ESM output, no bundler), Vitest (happy-dom), oxlint,
+size-limit. Published to npm under the `@sigx` scope.
 
 ## Development workflow (issue → PR → Copilot review → merge)
 
 **This is mandatory for EVERY agent-driven change — including one-line fixes.
-Never commit straight to `main`.** Repo: `signalxjs/<REPO>`, base branch `main`.
+Never commit straight to `main`.** Repo: `signalxjs/use`, base branch `main`.
 (Human contributors follow `CONTRIBUTING.md`, where an issue is optional; for
 agents the issue-first flow below is required.)
 
@@ -69,7 +71,7 @@ agents the issue-first flow below is required.)
    `gh` is too old to resolve `@copilot` (error: `'@copilot' not found`), request it
    via the API instead — don't skip it:
    ```sh
-   gh api --method POST repos/signalxjs/<REPO>/pulls/<pr>/requested_reviewers \
+   gh api --method POST repos/signalxjs/use/pulls/<pr>/requested_reviewers \
      -f 'reviewers[]=copilot-pull-request-reviewer[bot]'
    ```
    (The reviewer-request API takes the `[bot]`-suffixed slug; the review author
@@ -104,34 +106,54 @@ agents the issue-first flow below is required.)
 
 ## Build, Test, Lint
 
-<!-- TODO(sigx-standard): adapt these to THIS repo's scripts. The defaults below
-     are the monorepo shape from signalxjs/core. -->
-
 ```bash
 pnpm install
-pnpm build       # build all packages
-pnpm test        # vitest run (unit tests across packages)
+pnpm build       # tsgo build of packages/use (per-file ESM to dist/)
+pnpm test        # vitest run (unit tests + *.test-d.ts typing contracts)
 pnpm test -- <path>                # single test file/dir (substring match)
 pnpm test -- -t "name of test"     # single test by name (vitest -t)
 pnpm test:watch
 pnpm test:coverage
-pnpm typecheck   # tsgo (a fast TS compiler), config: tsconfig.json
-pnpm lint        # oxlint over the packages' src
+pnpm typecheck        # tsgo (a fast TS compiler), config: tsconfig.json
+pnpm typecheck:core   # proves the root entry is DOM-free (tsconfig.core.json:
+                      # lib ES2022 only, src/web excluded) — CI runs it too
+pnpm lint        # oxlint over packages/use/src
 pnpm lint:fix
-pnpm size        # size-limit bundle-size check (.size-limit.json)
+pnpm size        # size-limit bundle-size check (.size-limit.json) — includes
+                 # per-import tree-shaking guards; keep them honest
+pnpm verify:pack # pack + install + import smoke of both entries
 ```
-
-To run an example/app: `pnpm --filter <package-name> dev`.
 
 ## Packages
 
-<!-- TODO(sigx-standard): list THIS repo's packages, or delete this section for a
-     single-package repo. Example shape: -->
+- `packages/use` → `@sigx/use` — the composables. Two entries:
+  - `@sigx/use` (`src/index.ts`) — platform-agnostic composables (state, timing,
+    factories), public utilities (`toValue`, `tryOnScopeDispose`, `tryOnMounted`,
+    `MaybeSignal`), and type-only cross-platform contracts. **Must stay
+    statically DOM-free** — never reference `window`/`document`/DOM types outside
+    `src/web/`; `pnpm typecheck:core` enforces it.
+  - `@sigx/use/web` (`src/web/index.ts`) — SSR-safe DOM composables. Every
+    function takes `{ window?, document?, navigator? }` configurable-globals
+    (the SSR seam and the test seam) and must no-op inertly on the server.
+- Layout: one function per kebab-case file (`src/core/use-toggle.ts`,
+  `src/web/use-mouse.ts`); shared helpers in `src/shared/`
+  (`src/shared/lifecycle.ts` is the ONLY file that may import
+  `@sigx/runtime-core`, keeping the component-lifecycle dependency in one
+  seam). Relative imports carry explicit `.js` extensions — the tsgo build
+  emits them verbatim and Node ESM requires them.
+- Cleanup convention: ALL teardown registers via `tryOnScopeDispose` (backed
+  by reactivity's `onScopeDispose`), so composables dispose with the owning
+  component or `effectScope`. Composables whose return is already a control
+  bag (timers, observers, `useScroll`) additionally expose an explicit
+  `stop()`/`Pausable` handle. Bare-signal sensors (`useMouse`,
+  `useMediaQuery`, `useWindowSize`, …) are scope-managed only — standalone
+  (no-component) users wrap them in `effectScope()` and call `scope.stop()`,
+  which is the idiomatic sigx pattern; don't bolt `stop` onto their reactive
+  return values.
 
-- `packages/<name>` → `@sigx/<name>` — what it does.
-
-Path aliases: `tsconfig.json` and `vitest.config.ts` map `@sigx/*` to
-`packages/*/src`, so tests and typecheck run against source, not dist.
+Path aliases: `tsconfig.json` and `vitest.config.ts` map `@sigx/use` and
+`@sigx/use/web` to `packages/use/src`, so tests and typecheck run against
+source, not dist.
 
 ## Parallel work with git worktrees
 
@@ -178,8 +200,8 @@ the queue, in two moments:
   from the PR:
   ```sh
   gh issue create --repo signalxjs/signalxjs.github.io \
-    --title "<REPO>: <what changed>" \
-    --body "Source: signalxjs/<REPO>#<pr>. <What needs documenting, and where on the site.> Not yet released."
+    --title "use: <what changed>" \
+    --body "Source: signalxjs/use#<pr>. <What needs documenting, and where on the site.> Not yet released."
   ```
   A user-facing PR isn't mergeable until its docs issue exists (see step 6 of
   the workflow).
@@ -187,7 +209,7 @@ the queue, in two moments:
   every open docs issue covering a change shipped in that release:
   ```sh
   gh issue comment <n> --repo signalxjs/signalxjs.github.io \
-    --body "Released in <REPO> vX.Y.Z."
+    --body "Released in use vX.Y.Z."
   ```
   (Mention the published package version(s) too if they differ from the tag.)
   A docs issue without a release comment means *merged but not released — don't
@@ -217,4 +239,4 @@ To adopt it in another repo:
    "Build, Test, Lint", and "Packages". Replace every `<REPO>` with the repo name.
 5. Keep the workflow, worktree, and conventions sections as-is — they are the
    shared standard.
-6. Lock down `main`: `node scripts/apply-branch-protection.mjs signalxjs/<REPO>`.
+6. Lock down `main`: `node scripts/apply-branch-protection.mjs signalxjs/use`.

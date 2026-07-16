@@ -7,7 +7,7 @@
 Use one of the following private channels:
 
 1. **GitHub Security Advisories** — preferred. Open a private report at
-   <https://github.com/signalxjs/<REPO>/security/advisories/new>.
+   <https://github.com/signalxjs/use/security/advisories/new>.
 2. **Email** — contact the maintainer directly: **Andreas Ekdahl**
    <andy@ekdahls.net>.
 
