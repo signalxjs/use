@@ -23,7 +23,7 @@
  */
 
 import { execSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { tmpdir } from 'os';
@@ -68,7 +68,12 @@ function setupNpmToken() {
 
 function cleanupNpmToken() {
     if (!npmrcCreated) return;
-    unlinkSync(npmrcPath);
+    try {
+        rmSync(npmrcPath, { force: true });
+    } catch (err) {
+        // Locked/AV-held temp file: report the path, never fail the publish.
+        console.error(`⚠️  Could not remove temporary npmrc at ${npmrcPath}:`, err.message);
+    }
     npmrcCreated = false;
 }
 
