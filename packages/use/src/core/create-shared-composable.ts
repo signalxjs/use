@@ -14,8 +14,11 @@ import { tryOnScopeDispose } from '../shared/scope.js';
  * Subscribers are counted per in-scope CALL — each call registers a matching
  * dispose with its owning scope (calling twice in one scope counts twice, and
  * both disposers fire together when that scope stops). Calls made outside any
- * component or `effectScope` don't participate in refcounting — they receive
- * the shared state but neither keep it alive nor leak counts.
+ * component or `effectScope` don't participate in refcounting: they receive
+ * (and, when first, create) the shared state without incrementing the count,
+ * so a shared instance created by an out-of-scope call lives until a later
+ * scoped subscriber's dispose brings the count back to zero. Prefer calling
+ * from a scope (or wrapping standalone use in `effectScope()`).
  *
  * Platform: everywhere.
  *
