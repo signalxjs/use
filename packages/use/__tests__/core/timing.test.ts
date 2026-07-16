@@ -65,6 +65,28 @@ describe('useIntervalFn', () => {
         expect(cb).toHaveBeenCalledTimes(2);
     });
 
+    it('pauses when a reactive interval becomes non-positive', () => {
+        const cb = vi.fn();
+        const interval = signal(100);
+        const { isActive, resume } = useIntervalFn(cb, interval);
+
+        vi.advanceTimersByTime(100);
+        expect(cb).toHaveBeenCalledTimes(1);
+
+        interval.value = 0;
+        expect(isActive.value).toBe(false);
+        vi.advanceTimersByTime(1000);
+        expect(cb).toHaveBeenCalledTimes(1); // old-rate timer cleared
+
+        interval.value = 50; // stays paused until an explicit resume
+        vi.advanceTimersByTime(200);
+        expect(cb).toHaveBeenCalledTimes(1);
+
+        resume();
+        vi.advanceTimersByTime(50);
+        expect(cb).toHaveBeenCalledTimes(2);
+    });
+
     it('clears with the owning scope', () => {
         const cb = vi.fn();
         const scope = effectScope();

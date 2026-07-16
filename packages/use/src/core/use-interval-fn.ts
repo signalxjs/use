@@ -44,7 +44,13 @@ export function useIntervalFn(
     }
     function resume() {
         const ms = toValue(interval);
-        if (ms <= 0) return;
+        // A non-positive interval disables the timer entirely: clear any
+        // running timer and report inactive. It stays paused until resume()
+        // is called after the interval becomes positive again.
+        if (ms <= 0) {
+            pause();
+            return;
+        }
         isActive.value = true;
         clean();
         if (immediateCallback) cb();
