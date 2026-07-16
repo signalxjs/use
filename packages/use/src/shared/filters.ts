@@ -87,6 +87,9 @@ export function createThrottle<A extends unknown[]>(
             lastArgs = args;
             const wait = toValue(ms);
             if (wait <= 0) {
+                // Throttling disabled: drop any pending trailing run so it
+                // can't fire an unexpected extra call later.
+                cancel();
                 fn(...args);
                 return;
             }
