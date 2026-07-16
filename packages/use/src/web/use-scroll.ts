@@ -167,6 +167,11 @@ export function useScroll(
         stopListener();
         handler?.cancel();
         clearIdle();
+        // Settle transient state so it can't stay stuck after cleanup.
+        batch(() => {
+            isScrolling.value = false;
+            directions.$set({ left: false, right: false, top: false, bottom: false });
+        });
     };
 
     const scrollTo = (left?: number, top?: number) => {
