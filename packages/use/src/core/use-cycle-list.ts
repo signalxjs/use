@@ -11,9 +11,12 @@ export interface UseCycleListOptions<T> {
 }
 
 export interface UseCycleListReturn<T> {
-    /** The current item. Falls back to `fallbackIndex` if the list no longer contains it. */
+    /**
+     * The current item. Falls back to `fallbackIndex` if the list no longer
+     * contains it; an empty list keeps the last known value.
+     */
     state: ReadSignal<T>;
-    /** Index of the current item in the list (or `fallbackIndex` when absent). */
+    /** Index of the current item in the list (-1 while the list is empty). */
     index: ReadSignal<number>;
     /** Advance `n` steps (default 1), wrapping around. Returns the new item. */
     next: (n?: number) => T;
@@ -51,15 +54,15 @@ export function useCycleList<T>(
     const state = computed(() => {
         const value = current.read.value;
         const items = listRead.value;
+        // Empty list: keep the last known value rather than yielding undefined.
+        if (items.length === 0) return value;
         return items.includes(value) ? value : items[Math.min(fallbackIndex, items.length - 1)];
     });
-    const index = computed(() => {
-        const found = listRead.value.indexOf(state.value);
-        return found >= 0 ? found : fallbackIndex;
-    });
+    const index = computed(() => listRead.value.indexOf(state.value));
 
     function go(target: number): T {
         const items = untrack(() => listRead.value);
+        if (items.length === 0) return current.peek(); // nothing to cycle
         const wrapped = ((target % items.length) + items.length) % items.length;
         const value = items[wrapped];
         current.set(value);

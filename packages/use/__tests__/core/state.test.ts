@@ -100,6 +100,18 @@ describe('useCycleList', () => {
         expect(go(5)).toBe('c'); // 5 wraps to index 2
     });
 
+    it('keeps the last value and no-ops go() while a reactive list is empty', () => {
+        const list = signal<string[]>(['a', 'b']);
+        const { state, index, next } = useCycleList(() => [...list]);
+        next(); // 'b'
+        list.$set([]);
+        expect(state.value).toBe('b'); // last known value retained
+        expect(index.value).toBe(-1);
+        expect(next()).toBe('b');      // go() no-ops on empty lists
+        list.$set(['x', 'b']);
+        expect(index.value).toBe(1);   // recovers once the list refills
+    });
+
     it('falls back when a reactive list no longer contains the value', () => {
         const list = signal(['a', 'b', 'c']);
         const { state, next } = useCycleList(() => [...list]);
