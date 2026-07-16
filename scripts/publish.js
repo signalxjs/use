@@ -72,7 +72,7 @@ function cleanupNpmToken() {
         rmSync(npmrcPath, { force: true });
     } catch (err) {
         // Locked/AV-held temp file: report the path, never fail the publish.
-        console.error(`⚠️  Could not remove temporary npmrc at ${npmrcPath}:`, err.message);
+        console.error(`⚠️  Could not remove temporary npmrc at ${npmrcPath}:`, err instanceof Error ? err.message : String(err));
     }
     npmrcCreated = false;
 }

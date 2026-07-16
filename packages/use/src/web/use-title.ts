@@ -9,7 +9,11 @@ import type { ConfigurableDocument } from './configurable.js';
 export interface UseTitleOptions extends ConfigurableDocument {
     /** Mirror external `document.title` changes back into the signal (MutationObserver). Default false. */
     observe?: boolean;
-    /** Restore the original title on scope disposal. Default false. */
+    /**
+     * Restore the title on scope disposal. Not a boolean: pass a function
+     * computing the restored value — e.g. `(original) => original` — or
+     * `false` (the default) to leave the title as-is.
+     */
     restoreOnUnmount?: false | ((original: string, current: string) => string);
 }
 

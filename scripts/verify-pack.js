@@ -118,7 +118,7 @@ function main() {
 try {
     main();
 } catch (err) {
-    console.error('\n❌ Pack smoke test failed:', err.message);
+    console.error('\n❌ Pack smoke test failed:', err instanceof Error ? err.message : String(err));
     console.error(`   Sandbox preserved for inspection: ${sandbox}`);
     process.exitCode = 1;
     process.exit(1);
