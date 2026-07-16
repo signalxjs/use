@@ -30,7 +30,8 @@ export interface UseClipboardOptions extends ConfigurableNavigator, Configurable
 export function useClipboard(options: UseClipboardOptions = {}): UseClipboardReturn {
     const { navigator = defaultNavigator, copiedDuring = 1500, legacy = false } = options;
     const clipboard = navigator?.clipboard;
-    const isSupported = signal(Boolean(clipboard) || legacy);
+    const legacyDocument = options.document ?? defaultDocument;
+    const isSupported = signal(Boolean(clipboard) || (legacy && Boolean(legacyDocument?.body)));
     const text = signal('');
     const copied = signal(false);
 
@@ -40,7 +41,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
     });
 
     const legacyCopy = (value: string) => {
-        const document = options.document ?? defaultDocument;
+        const document = legacyDocument;
         if (!document) return false;
         const textarea = document.createElement('textarea');
         textarea.value = value;

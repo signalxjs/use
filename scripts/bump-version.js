@@ -7,8 +7,8 @@ const packagesDir = join(__dirname, '..', 'packages');
 
 const arg = process.argv[2] || 'patch';
 
-// Check if arg is a version number (e.g., "0.2.0") or bump type
-const isExactVersion = /^\d+\.\d+\.\d+/.test(arg);
+// Check if arg is a version number (e.g., "0.2.0", "1.0.0-beta.1") or bump type
+const isExactVersion = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(arg);
 const bumpType = isExactVersion ? null : arg;
 const exactVersion = isExactVersion ? arg : null;
 
