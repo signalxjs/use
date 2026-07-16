@@ -13,7 +13,8 @@ const bumpType = isExactVersion ? null : arg;
 const exactVersion = isExactVersion ? arg : null;
 
 function bumpVersion(version, type) {
-    const parts = version.split('.').map(Number);
+    // Bump from the release base; a prerelease suffix (1.0.0-beta.1) is dropped.
+    const parts = version.split('-')[0].split('.').map(Number);
     switch (type) {
         case 'major':
             return `${parts[0] + 1}.0.0`;

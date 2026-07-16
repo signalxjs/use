@@ -1,4 +1,4 @@
-import { batch, computed, signal } from '@sigx/reactivity';
+import { batch, computed, signal, watch } from '@sigx/reactivity';
 import type { WritableComputed } from '@sigx/reactivity';
 import { createThrottle } from '../shared/filters.js';
 import { tryOnScopeDispose } from '../shared/scope.js';
@@ -138,8 +138,16 @@ export function useScroll(
     const onScroll = (event: Event) => (handler ? handler.call(event) : measure(event));
     if (handler) tryOnScopeDispose(handler.cancel);
 
-    if (resolveTarget()) {
-        measure();
+    if (target !== undefined || window) {
+        // Measure whenever a (possibly reactive) target produces an element —
+        // covers template refs that start null and fill in after mount.
+        watch(
+            () => resolveTarget(),
+            (t) => {
+                if (t) measure();
+            },
+            { immediate: true }
+        );
         useEventListener(
             target === undefined ? (window as EventTarget) : (target as MaybeSignal<EventTarget | null | undefined>),
             'scroll',

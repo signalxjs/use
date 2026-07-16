@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const packagesDir = join(rootDir, 'packages');
 
-const targets = ['node_modules', 'pnpm-lock.yaml'];
+// NOTE: pnpm-lock.yaml is source-controlled and deliberately NOT removed.
+const targets = ['node_modules'];
 if (existsSync(packagesDir)) {
     for (const pkg of readdirSync(packagesDir)) {
         targets.push(join('packages', pkg, 'dist'), join('packages', pkg, 'node_modules'));

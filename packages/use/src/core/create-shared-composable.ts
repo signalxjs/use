@@ -11,8 +11,9 @@ import { tryOnScopeDispose } from '../shared/scope.js';
  * The standard way to turn a per-caller sensor into an app singleton —
  * N components share ONE `mousemove` listener.
  *
- * Subscribers are counted per scope: calls made outside any component or
- * `effectScope` keep the shared state alive forever (nothing to dispose with).
+ * Subscribers are counted per scope. Calls made outside any component or
+ * `effectScope` don't participate in refcounting — they receive the shared
+ * state but neither keep it alive nor leak counts.
  *
  * Platform: everywhere.
  *
@@ -37,12 +38,15 @@ export function createSharedComposable<Fn extends (...args: never[]) => unknown>
     };
 
     return ((...args: never[]) => {
-        subscribers += 1;
         if (!scope) {
             scope = effectScope(true);
             state = scope.run(() => composable(...args));
         }
-        tryOnScopeDispose(dispose);
+        // Only scoped callers are refcounted; out-of-scope calls would
+        // otherwise increment without a matching dispose.
+        if (tryOnScopeDispose(dispose)) {
+            subscribers += 1;
+        }
         return state;
     }) as Fn;
 }
