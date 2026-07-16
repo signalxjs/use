@@ -60,7 +60,7 @@ export function useTitle(
     );
 
     if (observe && document) {
-        const titleElement = document.head.querySelector('title');
+        const titleElement = document.head?.querySelector('title');
         // Resolve the observer from the configured document's realm, not the
         // ambient global — the configurable-globals seam applies here too.
         const ObserverCtor =

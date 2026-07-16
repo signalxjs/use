@@ -42,7 +42,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
 
     const legacyCopy = (value: string) => {
         const document = legacyDocument;
-        if (!document) return false;
+        if (!document?.body) return false;
         const textarea = document.createElement('textarea');
         textarea.value = value;
         textarea.style.position = 'fixed';
