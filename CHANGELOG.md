@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **Platform-pack split** (#11): the `@sigx/use/web` subpath is replaced by a separate **`@sigx/use-web`** package that `export * from '@sigx/use'` and adds the web implementations — apps import everything from one package, and platform packs (`@sigx/use-lynx` in the lynx repo, third-party packs) become drop-in equals following the same recipe. `@sigx/use` gains an `./internals` entry (`createBox`, `createDebounce`, `createThrottle`) for pack authors, and is now DOM-free by construction. `@sigx/use-web` peer-depends on `@sigx/use` so apps hold a single copy. (Pre-first-publish restructure — nothing on npm changed.)
+
 ### Added
 
 - Initial implementation (#6). Two entries:

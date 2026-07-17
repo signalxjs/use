@@ -2,7 +2,7 @@
   "name": "sigx-use-monorepo",
   "version": "0.1.0",
   "private": true,
-  "description": "Composable utilities for SignalX — VueUse-style tree-shakable functions built on sigx signals",
+  "description": "Composable utilities for SignalX \u2014 VueUse-style tree-shakable functions built on sigx signals",
   "type": "module",
   "workspaces": [
     "packages/*"
@@ -16,8 +16,8 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsgo --noEmit",
     "typecheck:core": "tsgo --noEmit -p tsconfig.core.json",
-    "lint": "oxlint packages/use/src",
-    "lint:fix": "oxlint --fix packages/use/src",
+    "lint": "oxlint packages/use/src packages/use-web/src",
+    "lint:fix": "oxlint --fix packages/use/src packages/use-web/src",
     "clean": "node scripts/clean.mjs",
     "publish:dry": "node scripts/publish.js --dry-run",
     "publish:all": "node scripts/publish.js",

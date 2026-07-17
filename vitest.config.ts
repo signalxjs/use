@@ -19,7 +19,9 @@ export default defineConfig({
         alias: {
             // Subpath alias must precede the bare one, or '@sigx/use' would
             // swallow '@sigx/use/web' imports.
-            '@sigx/use/web': here('packages/use/src/web/index.ts'),
+            // Longest-prefix aliases first, or '@sigx/use' would swallow the rest.
+            '@sigx/use-web': here('packages/use-web/src/index.ts'),
+            '@sigx/use/internals': here('packages/use/src/internals.ts'),
             '@sigx/use': here('packages/use/src/index.ts')
         }
     }

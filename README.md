@@ -5,6 +5,7 @@
 **Composable utilities for [SignalX](https://sigx.dev/core/) — tree-shakable functions built on sigx signals.**
 
 [![npm](https://img.shields.io/npm/v/@sigx/use.svg?label=@sigx/use&color=blue)](https://www.npmjs.com/package/@sigx/use)
+[![npm](https://img.shields.io/npm/v/@sigx/use-web.svg?label=@sigx/use-web&color=blue)](https://www.npmjs.com/package/@sigx/use-web)
 [![license](https://img.shields.io/npm/l/@sigx/use.svg)](./LICENSE)
 [![ci](https://github.com/signalxjs/use/actions/workflows/ci.yml/badge.svg)](https://github.com/signalxjs/use/actions/workflows/ci.yml)
 [![types](https://img.shields.io/npm/types/@sigx/use.svg)](https://www.typescriptlang.org/)
@@ -21,24 +22,46 @@ storage, clipboard and more — each one a small, tree-shakable function built o
 `@sigx/reactivity` signals. Import only what you use; your bundle contains only
 what you import.
 
-Two entries, split by **where the code can run**:
+Two packages, split by **where the code can run** — a platform-pack
+architecture (the same packs-on-a-seam pattern core uses for hydration
+strategies and cache):
 
-- **`@sigx/use`** — platform-agnostic. Works on web, [Lynx](https://sigx.dev/lynx/)
-  (native iOS/Android), SSR/Node, and terminal. Statically DOM-free (CI-enforced).
-- **`@sigx/use/web`** — browser composables. SSR-safe (inert defaults on the
-  server, listeners attach on mount), removed cleanly when the owning component
-  or `effectScope` is disposed.
+- **`@sigx/use`** — the seam: platform-agnostic composables + the shared type
+  contracts. Works on web, [Lynx](https://sigx.dev/lynx/) (native iOS/Android),
+  SSR/Node, and terminal. Statically DOM-free (CI-enforced).
+- **`@sigx/use-web`** — the web platform pack. **Re-exports all of
+  `@sigx/use`** and adds SSR-safe browser composables, so apps import
+  everything from one package. Inert defaults on the server; everything
+  detaches when the owning component or `effectScope` is disposed.
+- **`@sigx/use-lynx`** *(planned, lives in the lynx repo)* — the native pack:
+  same recipe, implementing the same contract names over native bridges.
 
 Cross-platform concepts (`useColorScheme`, `useOnline`, `useStorage`, …) share
-type contracts exported from the root, so platform implementations have
-identical signatures and your app code ports unchanged.
+type contracts exported from `@sigx/use`, so every platform pack has identical
+signatures — app code written against them ports by swapping (or aliasing) one
+package.
+
+### Writing your own platform pack
+
+```ts
+// @sigx/use-yourplatform/src/index.ts
+export * from '@sigx/use';                    // 1. re-export the seam
+export { useColorScheme } from './use-color-scheme.js'; // 2. implement the contracts
+// Shared implementation helpers (createBox, createDebounce, createThrottle)
+// are available from '@sigx/use/internals'.
+```
+
+Declare `@sigx/use` as a **peerDependency** so apps hold a single copy.
 
 ## A taste
 
 ```tsx
 import { component, signal } from 'sigx';
-import { useDebouncedSignal, useToggle } from '@sigx/use';
-import { useLocalStorage, useMouse, useMediaQuery } from '@sigx/use/web';
+// One import source: @sigx/use-web re-exports the platform-agnostic core.
+import {
+  useDebouncedSignal, useToggle,               // from the @sigx/use core
+  useLocalStorage, useMouse, useMediaQuery     // web implementations
+} from '@sigx/use-web';
 
 const Demo = component(() => {
   // Deep-reactive object persisted to localStorage — mutations auto-save.
@@ -64,18 +87,19 @@ const Demo = component(() => {
 ## Install
 
 ```bash
-npm install @sigx/use
+npm install @sigx/use-web   # web apps — includes everything from @sigx/use
+npm install @sigx/use       # libraries / non-web platforms — the seam only
 ```
 
-> `@sigx/use` declares `@sigx/reactivity` and `@sigx/runtime-core` as peer
-> dependencies (`>=0.11.0 <0.12.0`) so your app holds a single copy of the
-> reactivity engine. Package managers that auto-install peers (npm 7+, pnpm
-> with `auto-install-peers`) need nothing more; otherwise install the peers
-> explicitly.
+> Both packages declare `@sigx/reactivity` and `@sigx/runtime-core` as peer
+> dependencies (`>=0.11.0 <0.12.0`), and `@sigx/use-web` peers on `@sigx/use`,
+> so your app holds a single copy of everything. Package managers that
+> auto-install peers (npm 7+, pnpm with `auto-install-peers`) need nothing
+> more; otherwise install the peers explicitly.
 
 ## Functions
 
-### `@sigx/use` — everywhere (web, Lynx, SSR, terminal)
+### `@sigx/use` — everywhere (web, Lynx, SSR, terminal); re-exported by every platform pack
 
 | Category | Functions |
 |---|---|
@@ -86,7 +110,7 @@ npm install @sigx/use
 | Factories | `createGlobalState`, `createSharedComposable` |
 | Utilities | `toValue`, `tryOnScopeDispose`, `tryOnMounted`, `MaybeSignal` |
 
-### `@sigx/use/web` — browser (SSR-safe)
+### `@sigx/use-web` — browser (SSR-safe), adds:
 
 | Category | Functions |
 |---|---|

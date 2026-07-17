@@ -4,13 +4,22 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@sigx/use/web": ["./packages/use/src/web/index.ts"],
-      "@sigx/use": ["./packages/use/src/index.ts"]
+      "@sigx/use-web": [
+        "./packages/use-web/src/index.ts"
+      ],
+      "@sigx/use/internals": [
+        "./packages/use/src/internals.ts"
+      ],
+      "@sigx/use": [
+        "./packages/use/src/index.ts"
+      ]
     }
   },
   "include": [

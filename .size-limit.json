@@ -2,27 +2,49 @@
   {
     "name": "@sigx/use",
     "path": "packages/use/dist/index.js",
-    "ignore": ["@sigx/reactivity", "@sigx/runtime-core"],
+    "ignore": [
+      "@sigx/reactivity",
+      "@sigx/runtime-core"
+    ],
     "limit": "6 KB"
   },
   {
-    "name": "@sigx/use/web",
-    "path": "packages/use/dist/web/index.js",
-    "ignore": ["@sigx/reactivity", "@sigx/runtime-core"],
-    "limit": "8 KB"
+    "name": "@sigx/use-web (incl. re-exported core)",
+    "path": "packages/use-web/dist/index.js",
+    "ignore": [
+      "@sigx/reactivity",
+      "@sigx/runtime-core"
+    ],
+    "limit": "10 KB"
   },
   {
     "name": "@sigx/use { useToggle } (tree-shaking guard)",
     "path": "packages/use/dist/index.js",
     "import": "{ useToggle }",
-    "ignore": ["@sigx/reactivity", "@sigx/runtime-core"],
+    "ignore": [
+      "@sigx/reactivity",
+      "@sigx/runtime-core"
+    ],
     "limit": "300 B"
   },
   {
-    "name": "@sigx/use/web { useEventListener } (tree-shaking guard)",
-    "path": "packages/use/dist/web/index.js",
+    "name": "@sigx/use-web { useEventListener } (tree-shaking guard through the re-export)",
+    "path": "packages/use-web/dist/index.js",
     "import": "{ useEventListener }",
-    "ignore": ["@sigx/reactivity", "@sigx/runtime-core"],
+    "ignore": [
+      "@sigx/reactivity",
+      "@sigx/runtime-core"
+    ],
     "limit": "700 B"
+  },
+  {
+    "name": "@sigx/use-web { useToggle } (re-exported core stays shakable)",
+    "path": "packages/use-web/dist/index.js",
+    "import": "{ useToggle }",
+    "ignore": [
+      "@sigx/reactivity",
+      "@sigx/runtime-core"
+    ],
+    "limit": "300 B"
   }
 ]

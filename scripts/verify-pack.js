@@ -30,7 +30,7 @@ import { tmpdir } from 'os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
 
-const PACKAGES = ['packages/use'];
+const PACKAGES = ['packages/use', 'packages/use-web'];
 
 const sandbox = join(tmpdir(), `sigx-use-verify-pack-${Date.now()}`);
 const tarballDir = join(sandbox, 'tarballs');
@@ -98,10 +98,11 @@ function main() {
             "const keys = Object.keys(use);",
             "if (keys.length === 0) throw new Error('@sigx/use exports no named bindings');",
             "console.log('✓ @sigx/use named exports:', keys.join(', '));",
-            "import * as web from '@sigx/use/web';",
+            "import * as web from '@sigx/use-web';",
             "const webKeys = Object.keys(web);",
-            "if (webKeys.length === 0) throw new Error('@sigx/use/web exports no named bindings');",
-            "console.log('✓ @sigx/use/web named exports:', webKeys.join(', '));",
+            "if (webKeys.length === 0) throw new Error('@sigx/use-web exports no named bindings');",
+            "for (const k of keys) if (!(k in web)) throw new Error(`@sigx/use-web does not re-export ${k}`);",
+            "console.log('✓ @sigx/use-web named exports (incl. re-exported core):', webKeys.join(', '));",
             '',
         ].join('\n')
     );

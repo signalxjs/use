@@ -21,14 +21,16 @@ This is the sigx standard agent setup. The same pattern (this file +
 it originates in [`signalxjs/repo-template`](https://github.com/signalxjs/repo-template).
 See "Adopting this setup in another sigx repo" at the bottom.
 
-SignalX (sigx) use is `@sigx/use` — a curated collection of tree-shakable
-composable functions built on `@sigx/reactivity` signals (the sigx equivalent
-of VueUse). A pnpm monorepo (ESM, `"type": "module"`) with a single leaf
-package under `packages/use`, exposing two entries: `@sigx/use` (root —
-platform-agnostic, statically DOM-free: works on web, Lynx, SSR, terminal) and
-`@sigx/use/web` (SSR-safe DOM composables). Tech stack: TypeScript (strict,
-built with tsgo — per-file ESM output, no bundler), Vitest (happy-dom), oxlint,
-size-limit. Published to npm under the `@sigx` scope.
+SignalX (sigx) use is the home of `@sigx/use` — a curated collection of
+tree-shakable composable functions built on `@sigx/reactivity` signals (the
+sigx equivalent of VueUse) — organized as a platform-pack architecture: a pnpm
+monorepo (ESM, `"type": "module"`) with `packages/use` (`@sigx/use`, the
+platform-agnostic seam — statically DOM-free: works on web, Lynx, SSR,
+terminal) and `packages/use-web` (`@sigx/use-web`, the web pack — re-exports
+the seam and adds SSR-safe DOM composables). `@sigx/use-lynx` follows the same
+recipe in the lynx repo. Tech stack: TypeScript (strict, built with tsgo —
+per-file ESM output, no bundler), Vitest (happy-dom), oxlint, size-limit.
+Published to npm under the `@sigx` scope.
 
 ## Development workflow (issue → PR → Copilot review → merge)
 
@@ -115,9 +117,9 @@ pnpm test -- -t "name of test"     # single test by name (vitest -t)
 pnpm test:watch
 pnpm test:coverage
 pnpm typecheck        # tsgo (a fast TS compiler), config: tsconfig.json
-pnpm typecheck:core   # proves the root entry is DOM-free (tsconfig.core.json:
-                      # lib ES2022 only, src/web excluded) — CI runs it too
-pnpm lint        # oxlint over packages/use/src
+pnpm typecheck:core   # proves @sigx/use is DOM-free (tsconfig.core.json:
+                      # lib ES2022 only, packages/use only) — CI runs it too
+pnpm lint        # oxlint over packages/*/src
 pnpm lint:fix
 pnpm size        # size-limit bundle-size check (.size-limit.json) — includes
                  # per-import tree-shaking guards; keep them honest
@@ -126,20 +128,29 @@ pnpm verify:pack # pack + install + import smoke of both entries
 
 ## Packages
 
-- `packages/use` → `@sigx/use` — the composables. Two entries:
-  - `@sigx/use` (`src/index.ts`) — platform-agnostic composables (state, timing,
-    factories), public utilities (`toValue`, `tryOnScopeDispose`, `tryOnMounted`,
-    `MaybeSignal`), and type-only cross-platform contracts. **Must stay
-    statically DOM-free** — never reference `window`/`document`/DOM types outside
-    `src/web/`; `pnpm typecheck:core` enforces it.
-  - `@sigx/use/web` (`src/web/index.ts`) — SSR-safe DOM composables. Every
-    function takes `{ window?, document?, navigator? }` configurable-globals
-    (the SSR seam and the test seam) and must no-op inertly on the server.
-- Layout: one function per kebab-case file (`src/core/use-toggle.ts`,
-  `src/web/use-mouse.ts`); shared helpers in `src/shared/`
-  (`src/shared/lifecycle.ts` is the ONLY file that may import
-  `@sigx/runtime-core`, keeping the component-lifecycle dependency in one
-  seam). Relative imports carry explicit `.js` extensions — the tsgo build
+- `packages/use` → `@sigx/use` — the platform-agnostic seam: composables
+  (state, timing, factories), public utilities (`toValue`, `tryOnScopeDispose`,
+  `tryOnMounted`, `MaybeSignal`), and the type-only cross-platform contracts
+  every platform pack implements. **Must stay statically DOM-free** — never
+  reference `window`/`document`/DOM types here; `pnpm typecheck:core` enforces
+  it. `@sigx/use/internals` exposes implementation helpers (`createBox`,
+  `createDebounce`, `createThrottle`) for platform packs.
+- `packages/use-web` → `@sigx/use-web` — the web platform pack. Its index does
+  `export * from '@sigx/use'` and adds SSR-safe DOM composables; apps import
+  everything from this one package. Every web function takes
+  `{ window?, document?, navigator? }` configurable-globals (the SSR seam and
+  the test seam) and must no-op inertly on the server. Peers on `@sigx/use`
+  (single copy — the core's module-level state must stay singleton).
+- **Platform-pack recipe** (for `@sigx/use-lynx` in the lynx repo, or third
+  parties): re-export `@sigx/use`, implement the shared contracts
+  (`useColorScheme`, `useStorage`, `useNetwork`, `useWindowSize`,
+  `useClipboard`, …) with platform APIs, peer-depend on `@sigx/use`, build on
+  `@sigx/use/internals` helpers.
+- Layout: one function per kebab-case file (`packages/use/src/core/use-toggle.ts`,
+  `packages/use-web/src/use-mouse.ts`); shared helpers in
+  `packages/use/src/shared/` (`shared/lifecycle.ts` is the ONLY file that may
+  import `@sigx/runtime-core`, keeping the component-lifecycle dependency in
+  one seam). Relative imports carry explicit `.js` extensions — the tsgo build
   emits them verbatim and Node ESM requires them.
 - Cleanup convention: ALL teardown registers via `tryOnScopeDispose` (backed
   by reactivity's `onScopeDispose`), so composables dispose with the owning
@@ -151,9 +162,9 @@ pnpm verify:pack # pack + install + import smoke of both entries
   which is the idiomatic sigx pattern; don't bolt `stop` onto their reactive
   return values.
 
-Path aliases: `tsconfig.json` and `vitest.config.ts` map `@sigx/use` and
-`@sigx/use/web` to `packages/use/src`, so tests and typecheck run against
-source, not dist.
+Path aliases: `tsconfig.json` and `vitest.config.ts` map `@sigx/use`,
+`@sigx/use/internals` and `@sigx/use-web` to the packages' `src`, so tests and
+typecheck run against source, not dist.
 
 ## Parallel work with git worktrees
 
