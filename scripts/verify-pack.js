@@ -103,6 +103,9 @@ function main() {
             "if (webKeys.length === 0) throw new Error('@sigx/use-web exports no named bindings');",
             "for (const k of keys) if (!(k in web)) throw new Error(`@sigx/use-web does not re-export ${k}`);",
             "console.log('✓ @sigx/use-web named exports (incl. re-exported core):', webKeys.join(', '));",
+            "import * as internals from '@sigx/use/internals';",
+            "for (const k of ['createBox', 'createDebounce', 'createThrottle']) if (typeof internals[k] !== 'function') throw new Error(`@sigx/use/internals missing ${k}`);",
+            "console.log('✓ @sigx/use/internals helpers:', Object.keys(internals).join(', '));",
             '',
         ].join('\n')
     );
