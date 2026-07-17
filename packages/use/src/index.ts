@@ -3,7 +3,7 @@
 // ============================================================================
 // Everything here works on web, Lynx (native), SSR/Node and terminal.
 // Nothing in this graph may reference DOM globals or DOM types — enforced by
-// `pnpm typecheck:core`. Browser composables live in `@sigx/use/web`.
+// `pnpm typecheck:core`. Browser composables live in the `@sigx/use-web` platform pack.
 
 // Shared utilities
 export { toValue } from './shared/to-value.js';

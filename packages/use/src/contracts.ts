@@ -2,7 +2,7 @@
 // Cross-platform contracts - type-only, zero runtime
 // ============================================================================
 // Platform-neutral shapes shared by every platform implementation of the
-// same concept: `@sigx/use/web` implements them with browser APIs; a Lynx
+// same concept: `@sigx/use-web` implements them with browser APIs; a Lynx
 // implementation (lynx repo) implements the SAME signatures with native
 // bridges. App code written against these contracts ports unchanged.
 // This module must stay type-only and DOM-free.

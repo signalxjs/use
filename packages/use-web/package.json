@@ -1,7 +1,7 @@
 {
-    "name": "@sigx/use",
+    "name": "@sigx/use-web",
     "version": "0.1.0",
-    "description": "Composable utilities for SignalX — platform-agnostic tree-shakable functions built on sigx signals",
+    "description": "Web platform pack for @sigx/use — SSR-safe DOM composables, re-exporting the platform-agnostic core",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -9,10 +9,6 @@
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
-        },
-        "./internals": {
-            "types": "./dist/internals.d.ts",
-            "import": "./dist/internals.js"
         }
     },
     "files": [
@@ -27,7 +23,8 @@
         "sigx",
         "composables",
         "hooks",
-        "utilities",
+        "browser",
+        "dom",
         "signals",
         "vueuse"
     ],
@@ -36,7 +33,7 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/signalxjs/use.git",
-        "directory": "packages/use"
+        "directory": "packages/use-web"
     },
     "homepage": "https://sigx.dev/use/",
     "bugs": {
@@ -45,7 +42,10 @@
     "devDependencies": {
         "@sigx/reactivity": "^0.11.0",
         "@sigx/runtime-core": "^0.11.0",
+        "@sigx/runtime-dom": "^0.11.0",
+        "@sigx/use": "workspace:^",
         "@types/node": "^25.9.1",
+        "sigx": "^0.11.0",
         "typescript": "^6.0.3"
     },
     "publishConfig": {
@@ -53,6 +53,7 @@
     },
     "peerDependencies": {
         "@sigx/reactivity": ">=0.11.0 <0.12.0",
-        "@sigx/runtime-core": ">=0.11.0 <0.12.0"
+        "@sigx/runtime-core": ">=0.11.0 <0.12.0",
+        "@sigx/use": ">=0.1.0 <0.2.0"
     }
 }
