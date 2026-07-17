@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- **Core deps via pnpm catalog; peer range narrowed to a single minor** (#14): core versions now live in a `catalog:` block in `pnpm-workspace.yaml`, and both packages reference them as `"catalog:"` in `peerDependencies` and `devDependencies` — future core bumps are a one-line catalog edit. `pnpm publish`/`pnpm pack` rewrites `catalog:` to the concrete range in the published tarball (verified: `@sigx/reactivity`/`@sigx/runtime-core` pack as `^0.12.0`). This narrows the `@sigx/reactivity` / `@sigx/runtime-core` peer ranges from `0.1.1`'s `>=0.11.0 <0.13.0` back to a single minor, **`^0.12.0`** (`>=0.12.0 <0.13.0`) — still resolving the `0.1.1` ERESOLVE fix (0.12.0 is included) while restoring the single-copy guarantee (`@sigx/reactivity` keeps reactive state in module-local variables, so exactly one physical copy must resolve). Core 0.12.0 itself is purely additive (new `@sigx/server` package + `@sigx/vite/server` entry); no composable code changes were required. `@sigx/use-web` also pins `@sigx/runtime-dom` and `sigx` to `^0.12.0` as dev-only (test) deps via the catalog.
+
 ## [0.1.1] — 2026-07-17
 
 ### Fixed

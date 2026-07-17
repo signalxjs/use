@@ -4,6 +4,21 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@sigx/reactivity':
+      specifier: ^0.12.0
+      version: 0.12.0
+    '@sigx/runtime-core':
+      specifier: ^0.12.0
+      version: 0.12.0
+    '@sigx/runtime-dom':
+      specifier: ^0.12.0
+      version: 0.12.0
+    sigx:
+      specifier: ^0.12.0
+      version: 0.12.0
+
 importers:
 
   .:
@@ -42,10 +57,10 @@ importers:
   packages/use:
     devDependencies:
       '@sigx/reactivity':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       '@sigx/runtime-core':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       '@types/node':
         specifier: ^25.9.1
@@ -57,13 +72,13 @@ importers:
   packages/use-web:
     devDependencies:
       '@sigx/reactivity':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       '@sigx/runtime-core':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       '@sigx/runtime-dom':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       '@sigx/use':
         specifier: workspace:^
@@ -72,7 +87,7 @@ importers:
         specifier: ^25.9.1
         version: 25.9.5
       sigx:
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0
       typescript:
         specifier: ^6.0.3
