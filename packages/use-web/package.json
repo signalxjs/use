@@ -1,6 +1,6 @@
 {
     "name": "@sigx/use-web",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Web platform pack for @sigx/use — SSR-safe DOM composables, re-exporting the platform-agnostic core",
     "type": "module",
     "main": "./dist/index.js",
@@ -40,20 +40,20 @@
         "url": "https://github.com/signalxjs/use/issues"
     },
     "devDependencies": {
-        "@sigx/reactivity": "^0.11.0",
-        "@sigx/runtime-core": "^0.11.0",
-        "@sigx/runtime-dom": "^0.11.0",
+        "@sigx/reactivity": "^0.12.0",
+        "@sigx/runtime-core": "^0.12.0",
+        "@sigx/runtime-dom": "^0.12.0",
         "@sigx/use": "workspace:^",
         "@types/node": "^25.9.1",
-        "sigx": "^0.11.0",
+        "sigx": "^0.12.0",
         "typescript": "^6.0.3"
     },
     "publishConfig": {
         "access": "public"
     },
     "peerDependencies": {
-        "@sigx/reactivity": ">=0.11.0 <0.12.0",
-        "@sigx/runtime-core": ">=0.11.0 <0.12.0",
+        "@sigx/reactivity": ">=0.11.0 <0.13.0",
+        "@sigx/runtime-core": ">=0.11.0 <0.13.0",
         "@sigx/use": ">=0.1.0 <0.2.0"
     }
 }
