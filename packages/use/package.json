@@ -1,6 +1,6 @@
 {
     "name": "@sigx/use",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "Composable utilities for SignalX — platform-agnostic tree-shakable functions built on sigx signals",
     "type": "module",
     "main": "./dist/index.js",
