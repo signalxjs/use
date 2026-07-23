@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-07-23
+
+### Changed
+
+- **Retarget the sigx core line from 0.12.x to 0.13.x** (#21): the `catalog:` block in `pnpm-workspace.yaml` now pins `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` / `sigx` to **`^0.13.0`** (`>=0.13.0 <0.14.0`), so both packages' peer and dev ranges move to the 0.13 single minor. Core 0.13.0 is compatible with the reactivity/runtime-core APIs `@sigx/use` consumes; no composable code changed.
+
+### Fixed
+
+- **`@sigx/use-web` peer on `@sigx/use` now tracks the release minor** (#23): the hardcoded `">=0.2.0 <0.3.0"` sibling peer excluded the `@sigx/use@0.3.0` that ships alongside it, so a `0.3.0` release failed `verify:pack` with `ERESOLVE` and never published. Widened to **`">=0.3.0 <0.4.0"`**, and taught `scripts/bump-version.js` to rewrite any concrete-range `@sigx/*` peer that points at a workspace sibling in lockstep with the version bump, so future releases can't reintroduce the mismatch.
+
+## [0.2.0] — 2026-07-18
+
 ### Changed
 
 - **Core deps via pnpm catalog; peer range narrowed to a single minor** (#14): core versions now live in a `catalog:` block in `pnpm-workspace.yaml`, and both packages reference them as `"catalog:"` in `peerDependencies` and `devDependencies` — future core bumps are a one-line catalog edit. `pnpm publish`/`pnpm pack` rewrites `catalog:` to the concrete range in the published tarball (verified: `@sigx/reactivity`/`@sigx/runtime-core` pack as `^0.12.0`). This narrows the `@sigx/reactivity` / `@sigx/runtime-core` peer ranges from `0.1.1`'s `>=0.11.0 <0.13.0` back to a single minor, **`^0.12.0`** (`>=0.12.0 <0.13.0`) — still resolving the `0.1.1` ERESOLVE fix (0.12.0 is included) while restoring the single-copy guarantee (`@sigx/reactivity` keeps reactive state in module-local variables, so exactly one physical copy must resolve). Core 0.12.0 itself is purely additive (new `@sigx/server` package + `@sigx/vite/server` entry); no composable code changes were required. `@sigx/use-web` also pins `@sigx/runtime-dom` and `sigx` to `^0.12.0` as dev-only (test) deps via the catalog.

@@ -1,6 +1,6 @@
 {
     "name": "@sigx/use-web",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Web platform pack for @sigx/use — SSR-safe DOM composables, re-exporting the platform-agnostic core",
     "type": "module",
     "main": "./dist/index.js",
@@ -54,6 +54,6 @@
     "peerDependencies": {
         "@sigx/reactivity": "catalog:",
         "@sigx/runtime-core": "catalog:",
-        "@sigx/use": ">=0.2.0 <0.3.0"
+        "@sigx/use": ">=0.3.0 <0.4.0"
     }
 }
