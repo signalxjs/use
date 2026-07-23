@@ -4,7 +4,17 @@ All notable changes to `@sigx/use`.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). While `@sigx/use` is on a `0.x` line, breaking changes may land in minor releases — they will always be called out here.
 
-## [Unreleased]
+## [0.3.0] — 2026-07-23
+
+### Changed
+
+- **Retarget the sigx core line from 0.12.x to 0.13.x** (#21): the `catalog:` block in `pnpm-workspace.yaml` now pins `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` / `sigx` to **`^0.13.0`** (`>=0.13.0 <0.14.0`), so both packages' peer and dev ranges move to the 0.13 single minor. Core 0.13.0 is compatible with the reactivity/runtime-core APIs `@sigx/use` consumes; no composable code changed.
+
+### Fixed
+
+- **`@sigx/use-web` peer on `@sigx/use` now tracks the release minor** (#23): the hardcoded `">=0.2.0 <0.3.0"` sibling peer excluded the `@sigx/use@0.3.0` that ships alongside it, so a `0.3.0` release failed `verify:pack` with `ERESOLVE` and never published. Widened to **`">=0.3.0 <0.4.0"`**, and taught `scripts/bump-version.js` to rewrite any concrete-range `@sigx/*` peer that points at a workspace sibling in lockstep with the version bump, so future releases can't reintroduce the mismatch.
+
+## [0.2.0] — 2026-07-18
 
 ### Changed
 
