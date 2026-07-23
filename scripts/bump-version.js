@@ -33,12 +33,17 @@ function bumpVersion(version, type) {
 // The single-minor peer range for a sibling at `version` — e.g. 0.3.0 or
 // 0.3.1 → ">=0.3.0 <0.4.0". Sibling packages keep module-level state
 // singleton, so a pack must peer on exactly one minor of the sibling it ships
-// with. The lower bound floors to `.0`: patches within a minor stay
-// compatible, so a patch bump must not tighten the range (a >=0.3.1 lower
-// bound would reject an already-installed sibling at 0.3.0).
+// with. A stable release floors the lower bound to `.0` so patches within a
+// minor stay compatible (a >=0.3.1 lower bound would reject an
+// already-installed sibling at 0.3.0). A prerelease (0.3.0-beta.1) is its own
+// lower bound instead — semver ranks it below the 0.3.0 release, so a floored
+// >=0.3.0 would reject the sibling prerelease and re-ERESOLVE on beta publishes.
 function siblingPeerRange(version) {
-    const [major, minor] = version.split('-')[0].split('.').map(Number);
-    return `>=${major}.${minor}.0 <${major}.${minor + 1}.0`;
+    const base = version.split('-')[0];
+    const isPrerelease = version !== base;
+    const [major, minor] = base.split('.').map(Number);
+    const lower = isPrerelease ? version : `${major}.${minor}.0`;
+    return `>=${lower} <${major}.${minor + 1}.0`;
 }
 
 // First pass: map every public (versioned) package name to the version it is
