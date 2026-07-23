@@ -46,7 +46,7 @@
         "@sigx/use": "workspace:^",
         "@types/node": "^25.9.1",
         "sigx": "catalog:",
-        "typescript": "^6.0.3"
+        "typescript": "^7.0.2"
     },
     "publishConfig": {
         "access": "public"
