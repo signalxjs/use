@@ -44,7 +44,7 @@
         "@sigx/runtime-core": "catalog:",
         "@sigx/runtime-dom": "catalog:",
         "@sigx/use": "workspace:^",
-        "@types/node": "^25.9.1",
+        "@types/node": "^26.1.1",
         "sigx": "catalog:",
         "typescript": "^6.0.3"
     },
