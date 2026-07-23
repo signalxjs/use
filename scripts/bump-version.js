@@ -30,12 +30,15 @@ function bumpVersion(version, type) {
     }
 }
 
-// The single-minor peer range for a sibling at `version` — e.g. 0.3.0 →
-// ">=0.3.0 <0.4.0". Sibling packages keep module-level state singleton, so a
-// pack must peer on exactly one minor of the sibling it ships with.
+// The single-minor peer range for a sibling at `version` — e.g. 0.3.0 or
+// 0.3.1 → ">=0.3.0 <0.4.0". Sibling packages keep module-level state
+// singleton, so a pack must peer on exactly one minor of the sibling it ships
+// with. The lower bound floors to `.0`: patches within a minor stay
+// compatible, so a patch bump must not tighten the range (a >=0.3.1 lower
+// bound would reject an already-installed sibling at 0.3.0).
 function siblingPeerRange(version) {
     const [major, minor] = version.split('-')[0].split('.').map(Number);
-    return `>=${version} <${major}.${minor + 1}.0`;
+    return `>=${major}.${minor}.0 <${major}.${minor + 1}.0`;
 }
 
 // First pass: map every public (versioned) package name to the version it is
