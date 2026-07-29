@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-07-29
+
+### Changed
+
+- **Retarget the sigx core line from 0.13.x to 0.14.x** (#26): the `catalog:` block in `pnpm-workspace.yaml` now pins `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` / `sigx` to **`^0.14.0`** (`>=0.14.0 <0.15.0`), so both packages' peer and dev ranges move to the 0.14 single minor. No composable code changed — `build`, `typecheck`, `test` (92 tests) and `size` passed against 0.14.0 on the first run.
+
+  Two core 0.14 changes are worth knowing about even though neither required a change here. A reactive object's **key set** is now a dependency, so enumerating reactive state inside an effect or computed (`Object.keys()`, `for…in`, spread, rest destructuring) re-runs the reader when a key appears or disappears — a composable that enumerates state can therefore re-run in cases where it previously did not. And host attributes on a component are now an opt-in (`& Define.Attrs`), a types-only break that affects components rather than composables. See signalxjs/core's `CHANGELOG.md` for 0.14.0.
+
 ## [0.3.0] — 2026-07-23
 
 ### Changed
