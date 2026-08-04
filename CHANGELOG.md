@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-08-04
+
+### Changed
+
+- **Retarget the sigx core line from 0.14.x to 0.15.x** (#28): the `catalog:` block in `pnpm-workspace.yaml` now pins `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` / `sigx` to **`^0.15.0`** (`>=0.15.0 <0.16.0`), so both packages' peer and dev ranges move to the 0.15 single minor. No composable code changed — `verify:catalog`, `build`, `typecheck` and `test` (92 tests) passed against 0.15.0 on the first run.
+
+  Core 0.15.0's breaking changes are all server-side (the rfc-server-v4 guard split in `@sigx/server` / `@sigx/vite`: `authorize:` replaces `use:` chains, `requireAuthorization`, `createServerApp`); the `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` APIs these composables consume are unchanged. See signalxjs/core's `CHANGELOG.md` for 0.15.0.
+
 ## [0.4.0] — 2026-07-29
 
 ### Changed
