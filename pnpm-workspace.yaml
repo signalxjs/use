@@ -7,10 +7,10 @@ packages:
 # single-minor pin forces pnpm to hoist one copy. Bump these together on the
 # next core release.
 catalog:
-  "@sigx/reactivity": ^0.14.0
-  "@sigx/runtime-core": ^0.14.0
-  "@sigx/runtime-dom": ^0.14.0
-  sigx: ^0.14.0
+  "@sigx/reactivity": ^0.15.0
+  "@sigx/runtime-core": ^0.15.0
+  "@sigx/runtime-dom": ^0.15.0
+  sigx: ^0.15.0
 
 onlyBuiltDependencies:
   - esbuild
