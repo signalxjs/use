@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-09-18
+
+### Changed
+
+- **Retarget the sigx core line from 0.15.x to 1.0.x** (#35): the `catalog:` block in `pnpm-workspace.yaml` now pins `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` / `sigx` to **`^1.0.0`** (`>=1.0.0 <2.0.0`), so both packages' peer and dev ranges move to the core 1.0 line. Core 1.0.0 is the stability contract — breaking changes only at a major from here on — so this peer range is a wide caret rather than a single minor; the app owns the one copy of `@sigx/reactivity` / `@sigx/runtime-core`, and core 1.0's duplicate-copy guard names a second copy at runtime (throws in dev, warns once in prod). No composable code changed — `verify:catalog`, `build`, `typecheck`, `typecheck:core`, `lint` and `test` (92 tests) passed against 1.0.0 on the first run.
+
+  Core 1.0.0's breaking changes are server-side (rfc-server-v5: the `@sigx/server` direct authoring form and loose wrapper stamps are removed; `docs/migrations/1.0-serverfn.md` is the one migration) plus JSX-typing changes in `@sigx/runtime-core` that affect components rather than composables; the `@sigx/reactivity` / `@sigx/runtime-core` / `@sigx/runtime-dom` APIs these composables consume are unchanged. See signalxjs/core's `CHANGELOG.md` for 1.0.0.
+
 ## [0.5.0] — 2026-08-04
 
 ### Changed
